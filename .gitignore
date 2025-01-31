@@ -8,4 +8,6 @@ __pycache__
 /handlers/__pycache__
 /keyboards/__pycache__
 /reports
+/content_for_test
+/photos
 test.py
