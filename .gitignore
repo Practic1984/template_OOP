@@ -1,0 +1,11 @@
+__pycache__
+/bot
+.env
+.pytest_cache
+/utils/users.db
+/utils/__pycache__
+/config/__pycache__
+/handlers/__pycache__
+/keyboards/__pycache__
+/reports
+test.py
