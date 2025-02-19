@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python3.12.3
+"""
+main file to run the project
+"""
 
 from handlers import user
 from handlers import admin
@@ -9,13 +12,13 @@ from bot_and_db import bot
 print('Bot is Start')
 
 def main():    
-    # Регистрируем команды Пользователей
+    # Registering User teams
     user.register_handler_user(bot=bot)   
 
-    # Регистрируем команды Админов   
+    # Registering Admin Teams
     admin.register_handler_admin(bot=bot)   
    
-    # Запускаем бесконечный цикл прослушивания новых сообщений
+    # We start an endless loop of listening to new messages
     bot.infinity_polling(skip_pending=True)
 
 if __name__ == "__main__":

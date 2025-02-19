@@ -76,7 +76,6 @@ def execute_query_select(connection, query, params=[]):
 
     return res
 
-
 class SQLiteDB():
 
     def __init__(self, DBNAME):
@@ -94,8 +93,6 @@ class SQLiteDB():
                 message.from_user.first_name,
                 other.get_msk_time()
             ])
-
-
 
     def create_table_admins(self, message):
         """
@@ -123,10 +120,6 @@ class SQLiteDB():
             query = user_sql_query.create_table_utm
             execute_query(connection=connection, query=query, params=[])
         
-  
-
-
-
     def check_table(self, table: str):
         """
         Check table name is exists in database

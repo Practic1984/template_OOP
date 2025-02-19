@@ -3,7 +3,8 @@ from config import config
 import telebot
 from utils.sqliteormmagic import SQLiteDB
 
-# Создаем обьект бота
+# Creating a bot object
+
 bot = telebot.TeleBot(config.TOKEN)
 bot.set_my_commands(
     commands=[
