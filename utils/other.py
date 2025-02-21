@@ -5,11 +5,11 @@ from dateutil.relativedelta import relativedelta
 
 def get_time(timezone: str = "Europe/Moscow") -> str:
     """
-    Returns the current time for the specified timezone in "YYYY-MM-DD HH:MM" format.
+    Возвращает текущее время для указанного часового пояса в формате "YYYY-MM-DD HH:MM".
     
-    :param timezone: Timezone string in IANA format (e.g., "Europe/Moscow", "UTC", "Asia/Tokyo").
-                     Defaults to "Europe/Moscow".
-    :return: Current time as a string in "YYYY-MM-DD HH:MM" format.
+    :param timezone: Часовой пояс в формате IANA (например, "Europe/Moscow", "UTC", "Asia/Tokyo").
+                     По умолчанию "Europe/Moscow".
+    :return: Текущее время в виде строки в формате "YYYY-MM-DD HH:MM".
     """
     try:
         tz = pytz.timezone(timezone)  # Get the timezone object
@@ -21,13 +21,16 @@ def get_time(timezone: str = "Europe/Moscow") -> str:
 
 # функция распарсивания deep-link ссылка бота
 def extract_unique_code(text):
+    """
+    Функция для извлечения уникального кода из команды /start.
+    """
     # Extracts the unique_code from the sent /start command.
     return text.split()[1] if len(text.split()) > 1 else None
 
 def check_fio(fio_text: str) -> bool:
     """
-    Checks whether the entered full name matches the "Full Name" format.
-    Your full name must consist of 2 or 3 words, each with at least 2 letters
+    Проверяет, соответствует ли введенное ФИО формату "Фамилия Имя" или "Фамилия Имя Отчество".
+    ФИО должно состоять из 2 или 3 слов, каждое не менее 2 букв.
     """
     fio_text = fio_text.strip()
     lst_fio = fio_text.split()
@@ -38,8 +41,8 @@ def check_fio(fio_text: str) -> bool:
 
 def check_phone(phone_text_input: str) -> str | None:
     """
-    Checks the entered phone number and converts it to a standard format.
-    Returns a string with the number (e.g., "+79011234567") or None if the number is invalid.
+    Проверяет введенный номер телефона и преобразует его в стандартный формат.
+    Возвращает строку с номером (например, "+79011234567") или None, если номер недействителен.
     """
     phone_digits = "".join(re.findall(r'\d+', phone_text_input))  # Extract only digits
 
@@ -54,10 +57,10 @@ from dateutil.relativedelta import relativedelta
 
 def check_age(age_text: str) -> bool | None:
     """
-    Checks if the entered birth date is valid and if the person is at least 18 years old.
+    Проверяет, корректна ли введенная дата рождения и исполнилось ли пользователю 18 лет.
     
-    :param age_text: Birthdate in "DD.MM.YYYY" format.
-    :return: True if the person is 18 or older, False if younger, None if the date is invalid or in the future.
+    :param age_text: Дата рождения в формате "DD.MM.YYYY".
+    :return: True, если пользователю 18 лет или больше, False, если меньше, None, если дата некорректна или в будущем.
     """
     try:
         birth_date = datetime.strptime(age_text.strip(), '%d.%m.%Y').date()  # Parse birthdate
@@ -75,10 +78,10 @@ def check_age(age_text: str) -> bool | None:
 
 def validate_email(email: str) -> bool:
     """
-    Validates an email address using a regular expression.
+    Проверяет корректность email-адреса с использованием регулярного выражения.
     
-    :param email: The email address to validate.
-    :return: True if the email is valid, otherwise False.
+    :param email: Email-адрес для проверки.
+    :return: True, если email корректен, иначе False.
     """
     email = email.strip().lower()  # Remove spaces and convert to lowercase
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'  # Email regex pattern

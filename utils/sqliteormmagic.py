@@ -1,9 +1,9 @@
 # python3.12.3
 """
-The script allows you to access the SQlite3 database 
-through a function, which is more convenient than 
-the syntax of direct SQL queries. For questions and 
-comments, write to the author @Practic_old
+Скрипт позволяет получить доступ к базе данных SQlite3. 
+через функцию, что удобнее, чем 
+синтаксис прямых SQL-запросов. По вопросам и 
+комментарии, пишите автору @Practic_old
 """
 import sqlite3
 import pandas as pd
@@ -19,6 +19,11 @@ logging.basicConfig(level=logging.ERROR, format="%(asctime)s - %(levelname)s - %
 
 
 def create_connection(path):
+    """
+    Создаёт подключение к базе данных SQLite.
+    :param path: str - путь к файлу базы данных.
+    :return: объект подключения.
+    """
     connection = None
     try:
         connection = sqlite3.connect(path)
@@ -29,12 +34,12 @@ def create_connection(path):
     return connection
 
 def execute_query(connection, query, params=[]):
-    """ 
-    Function for recording
-    to sql database
-    connection : database connection
-    query: str SQLite query string
-    params: list request parameters
+    """
+    Выполняет запрос к базе данных SQLite (INSERT, UPDATE, DELETE и т. д.).
+    :param connection: объект подключения к базе данных.
+    :param query: str - SQL-запрос.
+    :param params: list - параметры запроса (по умолчанию пустой список).
+    :return: результат выполнения запроса (если есть).
     """
     res = None
     cursor = connection.cursor()
@@ -56,12 +61,12 @@ def execute_query(connection, query, params=[]):
     return res
 
 def execute_query_select(connection, query, params=[]):
-    """ 
-    Function for reading from sql database
-    returns a list of tuples
-    connection : database connection
-    query: str SQLite query string
-    params: list request parameters
+    """
+    Выполняет SELECT-запрос к базе данных SQLite и возвращает результат.
+    :param connection: объект подключения к базе данных.
+    :param query: str - SQL-запрос.
+    :param params: list - параметры запроса (по умолчанию пустой список).
+    :return: список кортежей с результатами запроса.
     """
     res = None
     cursor = connection.cursor()
@@ -79,11 +84,16 @@ def execute_query_select(connection, query, params=[]):
 class SQLiteDB():
 
     def __init__(self, DBNAME):
+        """
+        Инициализирует объект базы данных.
+        :param DBNAME: str - путь к файлу базы данных.
+        """
         self.DBNAME = DBNAME
        
     def create_table_users(self, message):
         """
-        create table users if not exist
+        Создаёт таблицу пользователей, если её нет.
+        :param message: объект сообщения с информацией о пользователе.
         """
         with create_connection(self.DBNAME) as connection:
             execute_query(connection, user_sql_query.create_table_users)
@@ -96,7 +106,8 @@ class SQLiteDB():
 
     def create_table_admins(self, message):
         """
-        create table admins if not exist
+        Создаёт таблицу администраторов, если её нет.
+        :param message: объект сообщения с информацией о пользователе.
         """
         with create_connection(self.DBNAME) as connection:
             execute_query(connection, admin_sql_query.create_table_admins)
@@ -110,7 +121,7 @@ class SQLiteDB():
 
     def create_table_utm(self):
         """
-        create table utm if not exist
+        Создаёт таблицу utm, если её нет.
         """
 
         with create_connection(self.DBNAME) as connection:
@@ -122,7 +133,9 @@ class SQLiteDB():
         
     def check_table(self, table: str):
         """
-        Check table name is exists in database
+        Проверяет существование таблицы в базе данных.
+        :param table: str - название таблицы.
+        :return: bool - True, если таблица существует, иначе False.
         """
         connection = create_connection(self.DBNAME)
         cursor = connection.cursor()
@@ -192,7 +205,8 @@ class SQLiteDB():
 
     def get_all_users(self) -> list:
         """
-        Получает всех пользователей и возвращает список user_id.
+        Получает список всех пользователей.
+        :return: list - список user_id.
         """
         query = admin_sql_query.get_all_users
 
@@ -302,8 +316,8 @@ class SQLiteDB():
     
     def delete_table(self, table):
             """
-            ERASE table
-            DELETE all rows from table
+            Удаляет все записи из указанной таблицы.
+            :param table: str - имя таблицы.
             """
             connection = create_connection(self.DBNAME)
             query = f"""
@@ -314,7 +328,10 @@ class SQLiteDB():
 
     def delete_row(self, table:str, key_name:str, column_name:str):
             """
-            DELETE rows from table by key 
+            Удаляет строку из таблицы по указанному значению.
+            :param table: str - имя таблицы.
+            :param key_name: str - значение для удаления.
+            :param column_name: str - имя колонки.
             """
             connection = create_connection(self.DBNAME)
             query = f"""
