@@ -1,4 +1,4 @@
-TOKEN = "6367002500:AAExGa0ZyEpPqyxiUeY-IUPP0qoehURA5q0" 
+TOKEN = "insert_your_token_here" 
 
 # https://t.me/template_new_bot    ссылка на бота
 # https://t.me/template_new_bot?start=1029045407  ссылка на бота с utm-меткой
