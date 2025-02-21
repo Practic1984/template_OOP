@@ -11,7 +11,7 @@
 ```bash
 # Клонировать репозиторий
 git clone https://github.com/Practic1984/template_OOP.git
-cd yourrepo
+cd template_OOP
 
 # Установить зависимости
 pip install -r requirements.txt, в зависимости от проекта
