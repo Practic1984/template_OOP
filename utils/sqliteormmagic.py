@@ -301,262 +301,52 @@ class SQLiteDB():
 
         return [dict(row) for row in result] if result else []
     
-
-    def find_elements_in_column(self, table_name: str, column_name: str, key_name: str) -> list[dict]:
+    def find_elements_by_keywords(
+            self, 
+            table_name: str, 
+            **keyword_pairs: str
+        ) -> list[dict]:
         """
-        Ищет записи по значению в указанной колонке.
+        Ищет записи по произвольному количеству пар ключ-колонка.
+
         :param table_name: str - имя таблицы
-        :param key_name: str - значение для поиска
-        :param column_name: str - имя колонки
+        :param keyword_pairs: произвольное количество пар в формате column_name=key_value
         :return: list[dict] - список найденных строк
+        # Новый вызов с двумя ключами
+        result = self.find_elements_by_keywords(
+            "users", 
+            name="John", 
+            email="john@example.com"
+        )
         """
         if table_name not in config.ALLOWED_TABLES:
             raise ValueError(f"Недопустимое название таблицы: {table_name}")
 
-        if not column_name.isidentifier():  # Проверка на корректность названия колонки
-            raise ValueError("Недопустимое название колонки")
+        # Проверяем все переданные названия колонок
+        for column_name in keyword_pairs.keys():
+            if not column_name.isidentifier():
+                raise ValueError(f"Недопустимое название колонки: {column_name}")
 
-        query = f"SELECT * FROM {table_name} WHERE {column_name} = ?"
-
-        with create_connection(self.DBNAME) as connection:
-            connection.row_factory = sqlite3.Row  # Позволяет получать результаты как dict
-            result = execute_query_select(connection, query=query, params=[key_name])
-
-        return [dict(row) for row in result] if result else []
-    
-    def find_elements_by_3_keywords(
-        self, table_name: str, 
-        key_name_1: str, column_name_1: str, 
-        key_name_2: str, column_name_2: str, 
-        key_name_3: str, column_name_3: str
-    ) -> list[dict]:
-        """
-        Ищет записи, содержащие `key_name_1` в колонке `column_name_1`,
-        `key_name_2` в колонке `column_name_2` и `key_name_3` в колонке `column_name_3`.
-
-        :param table_name: str - имя таблицы
-        :param key_name_1: str - строка для поиска в первой колонке
-        :param column_name_1: str - имя первой колонки
-        :param key_name_2: str - строка для поиска во второй колонке
-        :param column_name_2: str - имя второй колонки
-        :param key_name_3: str - строка для поиска в третьей колонке
-        :param column_name_3: str - имя третьей колонки
-        :return: list[dict] - список найденных строк
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        if not (column_name_1.isidentifier() and column_name_2.isidentifier() and column_name_3.isidentifier()):
-            raise ValueError("Недопустимое название колонки")
-
-        query = f"""
-            SELECT * FROM {table_name} 
-            WHERE {column_name_1} = ? 
-            AND {column_name_2} = ?
-            AND {column_name_3} != ?
-        """
-        params = [key_name_1, key_name_2, key_name_3]
+        # Если условия не переданы, возвращаем все записи
+        if not keyword_pairs:
+            query = f"SELECT * FROM {table_name}"
+            params = []
+        else:
+            # Формируем условия WHERE
+            conditions = [f"{col} = ?" for col in keyword_pairs.keys()]
+            where_clause = " AND ".join(conditions)
+            
+            query = f"""
+                SELECT * FROM {table_name} 
+                WHERE {where_clause}
+            """
+            params = [str(value) for value in keyword_pairs.values()]
 
         with create_connection(self.DBNAME) as connection:
             connection.row_factory = sqlite3.Row
             result = execute_query_select(connection, query=query, params=params)
 
         return [dict(row) for row in result] if result else []
-
-
-    def find_elements_by_3_keywords_for_admins_choice_lead(
-        self, table_name: str, 
-        key_name_1: str, column_name_1: str, 
-        key_name_2: str, column_name_2: str, 
-        key_name_3: str, column_name_3: str
-    ) -> list[dict]:
-        """
-        Ищет записи, содержащие `key_name_1` в колонке `column_name_1`,
-        `key_name_2` в колонке `column_name_2` и `key_name_3` в колонке `column_name_3`.
-
-        :param table_name: str - имя таблицы
-        :param key_name_1: str - строка для поиска в первой колонке
-        :param column_name_1: str - имя первой колонки
-        :param key_name_2: str - строка для поиска во второй колонке
-        :param column_name_2: str - имя второй колонки
-        :param key_name_3: str - строка для поиска в третьей колонке
-        :param column_name_3: str - имя третьей колонки
-        :return: list[dict] - список найденных строк
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        if not (column_name_1.isidentifier() and column_name_2.isidentifier() and column_name_3.isidentifier()):
-            raise ValueError("Недопустимое название колонки")
-
-        query = f"""
-            SELECT * FROM {table_name} 
-            WHERE {column_name_1} = ? 
-            AND {column_name_2} = ?
-            AND {column_name_3} = ?
-        """
-        params = [key_name_1, key_name_2, key_name_3]
-
-        with create_connection(self.DBNAME) as connection:
-            connection.row_factory = sqlite3.Row
-            result = execute_query_select(connection, query=query, params=params)
-
-        return [dict(row) for row in result] if result else []
-
-
-    def get_count_elements_by_3_keywords(
-        self, table_name: str, 
-        key_name_1: str, column_name_1: str, 
-        key_name_2: str, column_name_2: str, 
-        key_name_3: str, column_name_3: str
-    ) -> list[dict]:
-        """
-        Ищет записи, содержащие `key_name_1` в колонке `column_name_1`,
-        `key_name_2` в колонке `column_name_2` и `key_name_3` в колонке `column_name_3`.
-
-        :param table_name: str - имя таблицы
-        :param key_name_1: str - строка для поиска в первой колонке
-        :param column_name_1: str - имя первой колонки
-        :param key_name_2: str - строка для поиска во второй колонке
-        :param column_name_2: str - имя второй колонки
-        :param key_name_3: str - строка для поиска в третьей колонке
-        :param column_name_3: str - имя третьей колонки
-        :return: list[dict] - список найденных строк
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        if not (column_name_1.isidentifier() and column_name_2.isidentifier() and column_name_3.isidentifier()):
-            raise ValueError("Недопустимое название колонки")
-
-        query = f"""
-            SELECT * FROM {table_name} 
-            WHERE {column_name_1} = ? 
-            AND {column_name_2} = ?
-            AND {column_name_3} = ?
-        """
-        params = [key_name_1, key_name_2, key_name_3]
-
-        with create_connection(self.DBNAME) as connection:
-            connection.row_factory = sqlite3.Row
-            result = execute_query_select(connection, query=query, params=params)
-
-        return len(result)
-
-
-    def count_by_bid_id(self, table_name: str, bid_id: int) -> int:
-        """
-        Считает количество записей с заданным bid_id в указанной таблице.
-
-        :param table_name: Имя таблицы.
-        :param bid_id: Значение bid_id для фильтрации.
-        :return: Количество записей.
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        query = f"SELECT COUNT(*) FROM {table_name} WHERE bid_id = ?"
-
-        with create_connection(self.DBNAME) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, (bid_id,))
-            result = cursor.fetchone()
-
-        return result[0] if result else 0
-
-    def get_list_of_workers_by_bid_id(self, table_name: str, bid_id: int) -> str:
-        """
-        Возвращает отформатированный текст со списком исполнителей по заявке.
-
-        :param table_name: Имя таблицы (например, 'bids_history_by_workers').
-        :param bid_id: ID заявки.
-        :return: Текстовый список исполнителей.
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        query = f"SELECT * FROM {table_name} WHERE bid_id = ?"
-
-        with create_connection(self.DBNAME) as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(query, (bid_id,))
-            result = cursor.fetchall()
-
-        if not result:
-            return "Список исполнителей пуст."
-
-        text = 'Список исполнителей по заявке:\n\n'
-        for row in result:
-            from_user_id = row['from_user_id']
-            row_worker = self.get_row_by_user_id(table_name='worker', from_user_id=from_user_id)
-            if row_worker:
-                row_text = f"👷 ФИО: {row_worker['fio']}\n"
-                row_text += f"📞 Телефон: {row_worker['phone']}\n"
-                row_text += f"💳 Реквизиты: {row_worker['payment_details']}\n"
-                row_text += '***\n'
-                text += row_text
-
-        return text.strip()
-
-
-
-    def find_elements_by_2_keywords(
-        self, table_name: str, key_name_1: str, column_name_1: str, key_name_2: str, column_name_2: str
-    ) -> list[dict]:
-        """
-        Ищет записи, содержащие `key_name_1` в колонке `column_name_1` 
-        и `key_name_2` в колонке `column_name_2`.
-
-        :param table_name: str - имя таблицы
-        :param key_name_1: str - строка для поиска в первой колонке
-        :param column_name_1: str - имя первой колонки
-        :param key_name_2: str - строка для поиска во второй колонке
-        :param column_name_2: str - имя второй колонки
-        :return: list[dict] - список найденных строк
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        if not (column_name_1.isidentifier() and column_name_2.isidentifier()):
-            raise ValueError("Недопустимое название колонки")
-
-        query = f"""
-            SELECT * FROM {table_name} 
-            WHERE {column_name_1} = ? AND {column_name_2} = ?
-        """
-        params = [f"{key_name_1}", f"{key_name_2}"]
-
-        with create_connection(self.DBNAME) as connection:
-            connection.row_factory = sqlite3.Row
-            result = execute_query_select(connection, query=query, params=params)
-
-        return [dict(row) for row in result] if result else []
-
-
-    def find_elements_by_keyword(self, table_name: str, key_name: str, column_name: str) -> list[dict]:
-        """
-        Ищет записи, содержащие `key_name` в колонке `column_name`.
-        :param table_name: str - имя таблицы
-        :param key_name: str - строка для поиска
-        :param column_name: str - имя колонки
-        :return: list[dict] - список найденных строк
-        """
-        if table_name not in config.ALLOWED_TABLES:
-            raise ValueError(f"Недопустимое название таблицы: {table_name}")
-
-        if not column_name.isidentifier():  # Проверка на корректность названия колонки
-            raise ValueError("Недопустимое название колонки")
-
-        query = f"SELECT * FROM {table_name} WHERE {column_name} LIKE ?"
-        params = [f"%{key_name}%"]
-
-        with create_connection(self.DBNAME) as connection:
-            connection.row_factory = sqlite3.Row  # Позволяет получать результаты как dict
-            result = execute_query_select(connection, query=query, params=params)
-
-        return [dict(row) for row in result] if result else []
-
 
     def get_last_inserted_id(self, table_name: str) -> int:
         """

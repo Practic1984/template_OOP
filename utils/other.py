@@ -2,6 +2,40 @@ import datetime
 import pytz
 import re
 from dateutil.relativedelta import relativedelta
+from telebot.types import Message, CallbackQuery
+
+def get_file_id(update):
+    """
+    Простая функция для получения file_id
+    Возвращает только file_id или None
+    """
+    if isinstance(update, CallbackQuery):
+        message = update.message
+    elif isinstance(update, Message):
+        message = update
+    else:
+        return None
+    
+    # Проверяем все типы медиа
+    media_types = [
+        message.voice,
+        message.audio, 
+        message.document,
+        message.video,
+        message.photo,
+        message.sticker,
+        message.video_note
+    ]
+    
+    for media in media_types:
+        if media:
+            if media == message.photo:
+                # Для фото берем самый большой размер
+                return max(media, key=lambda p: p.file_size).file_id
+            return media.file_id
+    
+    return None
+
 
 def get_time(timezone: str = "Europe/Moscow") -> str:
     """

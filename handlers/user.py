@@ -2,6 +2,7 @@
 from bot_and_db import bot
 from bot_and_db import db_users
 import utils
+from utils import other, user_sql_query
 from msg import msg_user
 from keyboards import keyboards_user
 
@@ -14,21 +15,35 @@ def start_fnc_user(message):
 
     # Создаем таблицу users, если её нет, и записываем туда пользователя
     if not db_users.check_table(table='users'):
-        db_users.create_table_users(message=message)
+        db_users.create_table(create_query=user_sql_query.create_table_users)
     
-    elif not db_users.check_user_on_table(table='users', from_user_id=message.from_user.id):
-        db_users.create_table_users(message=message)
+    if not db_users.check_user_on_table(table='users', from_user_id=message.from_user.id):
+        db_users.ins_unique_row(table_name='users', values={
+            'from_user_id': message.from_user.id,
+            'from_user_username': message.from_user.username,
+            'from_user_first_name': message.from_user.first_name,
+            'regtime': other.get_time()            
+            })
         
             
-    unique_code = utils.other.extract_unique_code(message.text)
+    unique_code = other.extract_unique_code(message.text)
+    if not db_users.check_table(table='utm'):
+        db_users.create_table(create_query=user_sql_query.create_table_utm)
 
     # Получаем уникальный код из команды /start
     if unique_code:  # if the '/start' command contains a unique_code
 
         #создаем таблицу utm если ее нет и записываем туда юзера с utm меткой
-        db_users.create_table_utm(message=message, unique_code=unique_code)     
-    
+        db_users.ins_unique_row(table_name='utm', values={
+            'from_user_id': message.from_user.id,
+            'from_user_username': message.from_user.username,
+            'from_user_first_name': message.from_user.first_name,
+            'regtime': other.get_time(),
+            'utm_code': unique_code
+            })
+        
     bot.send_message(chat_id=message.from_user.id, text=msg_user.start_msg_user, reply_markup=keyboards_user.user_menu_main())
+
 
 def callback_query_about(call):
     """
@@ -36,8 +51,9 @@ def callback_query_about(call):
     Обновляет время просмотра раздела "О нас" в базе данных.
     Отправляет пользователю сообщение с информацией.
     """
-    db_users.upd_element_in_column(table_name='users', set_upd_par_name='about_time', set_key_par_name=utils.other.get_msk_time(), upd_column_name='from_user_id', key_column_name=call.from_user.id)
+    db_users.upd_element_by_filters(table_name="users", upd_column_name="about_time", new_value=other.get_time(), filters={ 'from_user_id': call.from_user.id })
     bot.send_message(chat_id=call.from_user.id, text=msg_user.about_msg, reply_markup=keyboards_user.back())
+
 
 def callback_query_faq(call):
     """
@@ -45,7 +61,7 @@ def callback_query_faq(call):
     Обновляет время просмотра раздела "FAQ" в базе данных.
     Отправляет пользователю сообщение с часто задаваемыми вопросами.
     """
-    db_users.upd_element_in_column(table_name='users', set_upd_par_name='faq_time', set_key_par_name=utils.other.get_msk_time(), upd_column_name='from_user_id', key_column_name=call.from_user.id)
+    db_users.upd_element_by_filters(table_name="users", upd_column_name="faq_time", new_value=other.get_time(), filters={ 'from_user_id': call.from_user.id })
     bot.send_message(chat_id=call.from_user.id, text=msg_user.faq_msg, reply_markup=keyboards_user.back())
                             
 def callback_query_back(call):
