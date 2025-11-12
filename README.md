@@ -33,9 +33,6 @@ python3 bot.py
 📂 template_oop
  ┣ 📂 config
    ┣ 📜 config.py
- ┣ 📂 examples
-   ┣ 📜 states.py
-   ┣ 📜 textfilters.py
  ┣ 📂 handlers
    ┣ 📜 admin.py
    ┣ 📜 user.py
