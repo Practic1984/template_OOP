@@ -8,6 +8,7 @@ __pycache__
 /config/__pycache__
 /handlers/__pycache__
 /keyboards/__pycache__
+/msg/__pycache__
 /reports
 /content_for_test
 /photos
